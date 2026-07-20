@@ -70,7 +70,7 @@ class ProfileCard extends StatelessWidget {
                   style: TextStyle(fontSize: 13, color: Colors.grey),
                 ), // Text
                 const Text(
-                  'code.debug.repeat',
+                  'im not boring',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, color: Colors.grey),
                 ), // Text
