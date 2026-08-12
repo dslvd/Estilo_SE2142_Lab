@@ -1,28 +1,40 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const Color kPurple = Color(0xFF6C5CE7);
 const Color kPurpleLight = Color(0xFFF1EEFD);
 const Color kNameColor = Color(0xFF2D2A4A);
 
-void main() => runApp(const ProfileApp());
+const String kMemberPhotoUrl =
+    'https://relay.xstlo.com/p/kevqzo.jpg';
+const String kOrgFacebookUrl =
+    'https://www.facebook.com/CentralPhilippineUniversity.CPU/';
 
-class ProfileApp extends StatelessWidget {
-  const ProfileApp({super.key});
+void main() => runApp(const MembershipApp());
+
+class MembershipApp extends StatelessWidget {
+  const MembershipApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(textTheme: GoogleFonts.interTextTheme()),
       home: Scaffold(
-        backgroundColor: kPurple,
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         body: SafeArea(
           child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: const ProfileCard(),
-              ), // Padding
-            ), // ConstrainedBox
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: MembershipCard(),
+                ), // Padding
+              ), // ConstrainedBox
+            ), // SingleChildScrollView
           ), // Center
         ), // SafeArea
       ), // Scaffold
@@ -30,10 +42,20 @@ class ProfileApp extends StatelessWidget {
   }
 }
 
-class ProfileCard extends StatelessWidget {
-  const ProfileCard({super.key});
+class MembershipCard extends StatelessWidget {
+  const MembershipCard({super.key});
 
   static const double _avatarRadius = 55;
+
+  Future<void> _openOrgFacebook(BuildContext context) async {
+    final uri = Uri.parse(kOrgFacebookUrl);
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open the Facebook page.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,36 +75,33 @@ class ProfileCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                const OrgHeader(),
+                const SizedBox(height: 16),
+                Text(
                   'Matthew Estilo',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Baloo2',
+                  style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                     color: kNameColor,
                   ), // TextStyle
                 ), // Text
-                const SizedBox(height: 10),
-                const Text(
-                  'Software Engineering Student',
+                const SizedBox(height: 4),
+                Text(
+                  'BS Software Engineering - 2nd Year',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ), // Text
-                const Text(
-                  'im not boring',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey),
                 ), // Text
                 const SizedBox(height: 16),
                 const Divider(height: 1),
                 const SizedBox(height: 16),
-                const StatsRow(),
+                const MemberDetails(),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
+                  child: ElevatedButton.icon(
+                    onPressed: () => _openOrgFacebook(context),
+                    icon: const Icon(Icons.facebook),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kPurple,
                       foregroundColor: Colors.white,
@@ -91,11 +110,11 @@ class ProfileCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ), // RoundedRectangleBorder
                     ),
-                    child: const Text(
-                      'Edit Profile',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    label: Text(
+                      'Visit CPU on Facebook',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     ), // Text
-                  ), // ElevatedButton
+                  ), // ElevatedButton.icon
                 ), // SizedBox
               ],
             ), // Column
@@ -108,12 +127,25 @@ class ProfileCard extends StatelessWidget {
             shape: BoxShape.circle,
           ), // BoxDecoration
           child: ClipOval(
-            child: Image.asset(
-              'assets/images/profile.png',
+            child: CachedNetworkImage(
+              imageUrl: kMemberPhotoUrl,
               width: _avatarRadius * 2,
               height: _avatarRadius * 2,
               fit: BoxFit.cover, // crop-to-fill: correct choice for an avatar
-            ), // Image.asset
+              placeholder: (context, url) => const SizedBox(
+                width: _avatarRadius * 2,
+                height: _avatarRadius * 2,
+                child: Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ), // Center
+              ), // SizedBox
+              errorWidget: (context, url, error) => Image.asset(
+                'assets/images/profile.png',
+                width: _avatarRadius * 2,
+                height: _avatarRadius * 2,
+                fit: BoxFit.cover,
+              ), // Image.asset
+            ), // CachedNetworkImage
           ), // ClipOval
         ), // Container
       ],
@@ -121,41 +153,78 @@ class ProfileCard extends StatelessWidget {
   }
 }
 
-class StatsRow extends StatelessWidget {
-  const StatsRow({super.key});
+class OrgHeader extends StatelessWidget {
+  const OrgHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          'CENTRAL PHILIPPINE UNIVERSITY',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.1,
+            color: kPurple,
+          ), // TextStyle
+        ), // Text
+        const SizedBox(height: 2),
+        Text(
+          'CPU Software Engineering - Digital Membership Card',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey),
+        ), // Text
+      ],
+    ); // Column
+  }
+}
+
+class MemberDetails extends StatelessWidget {
+  const MemberDetails({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        _DetailRow(icon: Icons.badge, label: 'Member No.', value: 'CS-2026-0142'),
+        SizedBox(height: 10),
+        _DetailRow(icon: Icons.event_available, label: 'Valid Until', value: 'August 2027'),
+      ],
+    ); // Column
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.icon, required this.label, required this.value});
+
+  final IconData icon;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _statItem(Icons.grid_on, '6', 'Posts'),
-        _statItem(Icons.people, '6.7K', 'Followers'),
-        _statItem(Icons.person_add, '10', 'Following'),
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: kPurpleLight,
+          child: Icon(icon, color: kPurple, size: 16),
+        ), // CircleAvatar
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey),
+          ), // Text
+        ), // Expanded
+        Text(
+          value,
+          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: kNameColor),
+        ), // Text
       ],
     ); // Row
-  }
-
-  Widget _statItem(IconData icon, String value, String label) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: kPurpleLight,
-            child: Icon(icon, color: kPurple, size: 20),
-          ), // CircleAvatar
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ), // Text
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ), // Text
-        ],
-      ), // Column
-    ); // Expanded
   }
 }
