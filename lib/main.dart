@@ -32,11 +32,35 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
   final List<Listing> _listings = [];
   int _nextId = 1;
 
+  Future<void> _openCreateDialog() async {
+    final result = await showDialog<_ListingFormResult>(
+      context: context,
+      builder: (context) => const _ListingFormDialog(),
+    );
+    if (result == null) return;
+
+    setState(() {
+      _listings.add(
+        Listing(
+          id: _nextId++,
+          type: result.type,
+          description: result.description,
+          location: result.location,
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lost and Found Board')),
       body: _listings.isEmpty ? const _EmptyState() : _buildList(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openCreateDialog,
+        tooltip: 'Report a lost or found item',
+        child: const Icon(Icons.add),
+      ), // FloatingActionButton
     );
   }
 
@@ -85,5 +109,134 @@ class _EmptyState extends StatelessWidget {
         ), // Column
       ), // Padding
     ); // Center
+  }
+}
+
+/// The values collected by [_ListingFormDialog] when the user saves.
+class _ListingFormResult {
+  const _ListingFormResult({
+    required this.type,
+    required this.description,
+    required this.location,
+  });
+
+  final ListingType type;
+  final String description;
+  final String location;
+}
+
+/// Shared Create/Update form. When [existing] is null the dialog is in
+/// "create" mode; when it holds a [Listing], the fields are pre-filled and
+/// the dialog is in "edit" mode. Either way it just pops a [_ListingFormResult]
+/// and lets the caller decide whether to add or replace a listing.
+class _ListingFormDialog extends StatefulWidget {
+  const _ListingFormDialog({this.existing});
+
+  final Listing? existing;
+
+  @override
+  State<_ListingFormDialog> createState() => _ListingFormDialogState();
+}
+
+class _ListingFormDialogState extends State<_ListingFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _descriptionController;
+  late final TextEditingController _locationController;
+  late ListingType _type;
+
+  bool get _isEditing => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    _descriptionController = TextEditingController(text: existing?.description ?? '');
+    _locationController = TextEditingController(text: existing?.location ?? '');
+    _type = existing?.type ?? ListingType.lost;
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    Navigator.of(context).pop(
+      _ListingFormResult(
+        type: _type,
+        description: _descriptionController.text.trim(),
+        location: _locationController.text.trim(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(_isEditing ? 'Edit Listing' : 'Report an Item'),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<ListingType>(
+                initialValue: _type,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: const [
+                  DropdownMenuItem(value: ListingType.lost, child: Text('Lost')),
+                  DropdownMenuItem(value: ListingType.found, child: Text('Found')),
+                ],
+                onChanged: (value) {
+                  if (value != null) setState(() => _type = value);
+                },
+              ), // DropdownButtonFormField
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Item description',
+                  hintText: 'e.g. Black umbrella with a wooden handle',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please describe the item';
+                  }
+                  return null;
+                },
+              ), // TextFormField
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _locationController,
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                  hintText: 'e.g. Library, 2nd floor',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a location';
+                  }
+                  return null;
+                },
+              ), // TextFormField
+            ],
+          ), // Column
+        ), // SingleChildScrollView
+      ), // Form
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ), // TextButton
+        FilledButton(
+          onPressed: _submit,
+          child: const Text('Save'),
+        ), // FilledButton
+      ],
+    ); // AlertDialog
   }
 }
