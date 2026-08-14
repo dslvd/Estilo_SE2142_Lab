@@ -10,16 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_card_ui/main.dart';
 
 void main() {
-  testWidgets('Profile screen shows name and stats', (
+  testWidgets('Lost and Found board shows empty state with no listings', (
     WidgetTester tester,
   ) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProfileApp());
+    await tester.pumpWidget(const LostAndFoundApp());
 
-    // Verify the profile name and stats row render.
-    expect(find.text('Matthew Estilo'), findsOneWidget);
-    expect(find.text('Posts'), findsOneWidget);
-    expect(find.text('Followers'), findsOneWidget);
-    expect(find.text('Following'), findsOneWidget);
+    expect(find.text('Lost and Found Board'), findsOneWidget);
+    expect(find.text('No listings yet'), findsOneWidget);
   });
 }
