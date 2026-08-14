@@ -51,6 +51,20 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
     });
   }
 
+  Future<void> _openEditDialog(Listing listing) async {
+    final result = await showDialog<_ListingFormResult>(
+      context: context,
+      builder: (context) => _ListingFormDialog(existing: listing),
+    );
+    if (result == null) return;
+
+    setState(() {
+      listing.type = result.type;
+      listing.description = result.description;
+      listing.location = result.location;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,6 +89,11 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
           child: ListTile(
             title: Text(listing.description),
             subtitle: Text(listing.location),
+            trailing: IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'Edit listing',
+              onPressed: () => _openEditDialog(listing),
+            ), // IconButton
           ),
         ); // Card
       },
