@@ -113,11 +113,46 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
       itemCount: _listings.length,
       itemBuilder: (context, index) {
         final listing = _listings[index];
+        final isLost = listing.type == ListingType.lost;
+        final statusColor = isLost ? Colors.red.shade400 : Colors.green.shade600;
+
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
           child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: statusColor.withValues(alpha: 0.15),
+              child: Icon(
+                isLost ? Icons.help_outline : Icons.check_circle_outline,
+                color: statusColor,
+              ), // Icon
+            ), // CircleAvatar
             title: Text(listing.description),
-            subtitle: Text(listing.location),
+            subtitle: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ), // BoxDecoration
+                  child: Text(
+                    isLost ? 'LOST' : 'FOUND',
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ), // TextStyle
+                  ), // Text
+                ), // Container
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    listing.location,
+                    overflow: TextOverflow.ellipsis,
+                  ), // Text
+                ), // Expanded
+              ],
+            ), // Row
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
