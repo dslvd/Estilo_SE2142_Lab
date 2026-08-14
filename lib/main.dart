@@ -65,6 +65,35 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
     });
   }
 
+  Future<void> _confirmDelete(Listing listing) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove this listing?'),
+        content: Text(
+          'This will remove "${listing.description}" from the board. '
+          'Use this once the item has been claimed or returned.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ), // TextButton
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ), // FilledButton
+        ],
+      ), // AlertDialog
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _listings.removeWhere((item) => item.id == listing.id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,11 +118,21 @@ class _LostAndFoundHomeState extends State<LostAndFoundHome> {
           child: ListTile(
             title: Text(listing.description),
             subtitle: Text(listing.location),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Edit listing',
-              onPressed: () => _openEditDialog(listing),
-            ), // IconButton
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: 'Edit listing',
+                  onPressed: () => _openEditDialog(listing),
+                ), // IconButton
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Remove listing',
+                  onPressed: () => _confirmDelete(listing),
+                ), // IconButton
+              ],
+            ), // Row
           ),
         ); // Card
       },
