@@ -45,8 +45,13 @@ class NowPlayingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Now Playing')),
-      body: const Center(
-        child: Text('Playing a song...'),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Stop and Go Back'),
+        ), // ElevatedButton
       ), // Center
     ); // Scaffold
   }
