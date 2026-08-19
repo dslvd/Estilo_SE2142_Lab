@@ -10,15 +10,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_card_ui/main.dart';
 
 void main() {
-  testWidgets('Membership card shows name and org details', (
+  testWidgets('Playlist screen shows the app bar title and empty state', (
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MembershipApp());
+    await tester.pumpWidget(const MyApp());
 
-    // Verify the member name and organization details render.
-    expect(find.text('Matthew Estilo'), findsOneWidget);
-    expect(find.text('CENTRAL PHILIPPINE UNIVERSITY'), findsOneWidget);
-    expect(find.text('Visit CPU on Facebook'), findsOneWidget);
+    // Verify the playlist screen renders its title and empty-state text.
+    expect(find.text('My Playlist'), findsOneWidget);
+    expect(find.text('No songs yet'), findsOneWidget);
   });
 }
