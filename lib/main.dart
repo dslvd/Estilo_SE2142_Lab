@@ -27,3 +27,17 @@ class PlaylistScreen extends StatelessWidget {
     );
   }
 }
+
+class NowPlayingScreen extends StatelessWidget {
+  const NowPlayingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Now Playing')),
+      body: const Center(
+        child: Text('Playing a song...'),
+      ), // Center
+    ); // Scaffold
+  }
+}
