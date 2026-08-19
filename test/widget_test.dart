@@ -10,14 +10,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:profile_card_ui/main.dart';
 
 void main() {
-  testWidgets('Playlist screen shows the app bar title and empty state', (
+  testWidgets('Playlist screen shows the app bar title and play button', (
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Verify the playlist screen renders its title and empty-state text.
+    // Verify the playlist screen renders its title and play button.
     expect(find.text('My Playlist'), findsOneWidget);
-    expect(find.text('No songs yet'), findsOneWidget);
+    expect(find.text('Play First Song'), findsOneWidget);
   });
 }

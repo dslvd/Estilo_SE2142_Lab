@@ -21,9 +21,13 @@ class PlaylistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('My Playlist')),
-      body: const Center(
-        child: Text('No songs yet'),
-      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+          },
+          child: const Text('Play First Song'),
+        ), // ElevatedButton
+      ), // Center
     );
   }
 }
